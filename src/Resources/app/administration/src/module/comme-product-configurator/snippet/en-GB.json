@@ -1,0 +1,47 @@
+{
+    "comme-product-configurator": {
+        "nested": {
+            "value": "example"
+        },
+        "title": "Comme Product Configurator"
+    },
+
+    "comme-product-configurator-products": {
+        "general": {
+            "tab-item": "Product Configurator",
+            "list-title": "Comme Product Configurator Products list page",
+            "detail-title": "Comme Product Configurator Products detail page"
+        },
+
+        "empty-message": {
+            "message": "Nema scena"
+        },
+
+        "comme-product-configurator-products-save-success": {
+            "message": "Product Configurator Product has been successfully created",
+            "title": "Product Configurator Product saved"
+        },
+
+        "comme-product-configurator-products-update-success": {
+            "message": "Product Configurator Product has been successfully updated"
+        },
+
+        "create": {
+            "isActive": "Is active",
+            "title": "Title",
+            "slug": "Slug",
+            "descriptionHeader": "Description header",
+            "descriptionFooter": "Description footer"
+        }
+    },
+
+    "comme-product-configurator-products-seo": {
+        "slug-exists": {
+            "message": "One of the entered slugs already exists"
+        },
+
+        "slug-empty": {
+            "message": "Slug cannot be empty"
+        }
+    }
+}

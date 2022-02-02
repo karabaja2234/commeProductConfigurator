@@ -1,0 +1,33 @@
+{
+  "name": "comme/product-configurator",
+  "description": "Commerce Care - Product Configurator Plugin for Shopware 6",
+    "version": "v1.0.0",
+  "type": "shopware-platform-plugin",
+  "license": "MIT",
+    "authors": [
+        {
+            "name": "Commerce Care d.o.o. - DACH",
+            "email": "info@commercecare.de"
+        }
+    ],
+    "require": {
+        "shopware/core": "~6.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "commeProductConfigurator\\": "src/"
+        }
+    },
+    "extra": {
+        "shopware-plugin-class": "commeProductConfigurator\\commeProductConfigurator",
+        "copyright": "(c) by Commerce Care d.o.o. - DACH",
+        "label": {
+            "de-DE": "Commerce Care - Product Configurator Plugin for Shopware 6",
+            "en-GB": "Commerce Care - Product Configurator Plugin for Shopware 6"
+        },
+        "description": {
+            "de-DE": "Commerce Care - Product Configurator Plugin for Shopware 6",
+            "en-GB": "Commerce Care - Product Configurator Plugin for Shopware 6"
+        }
+    }
+}

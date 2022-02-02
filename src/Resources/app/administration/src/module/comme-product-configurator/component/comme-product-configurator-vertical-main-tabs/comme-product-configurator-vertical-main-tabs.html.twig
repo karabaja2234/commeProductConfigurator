@@ -1,0 +1,14 @@
+<sw-tabs isVertical :defaultItem="defaultItem" :small="false" class="sw-shop-the-look-tabs" @new-item-active="onChangeTab" >
+    <template #default="{ active }">
+        {% block sas_block_list_tab_item %}
+            <sw-tabs-item
+                variant="minimal"
+                :route="{ name: 'comme.product.configurator.index' }"
+                :activeTab="active"
+                :native="true"
+                name="Product configurator">
+                {{ $tc('comme-product-configurator-products.general.tab-item') }}
+            </sw-tabs-item>
+        {% endblock %}
+    </template>
+</sw-tabs>

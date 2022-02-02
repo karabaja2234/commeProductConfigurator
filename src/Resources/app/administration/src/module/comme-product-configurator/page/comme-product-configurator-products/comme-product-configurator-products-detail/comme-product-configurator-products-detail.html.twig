@@ -1,0 +1,51 @@
+<sw-page>
+    <template slot="smart-bar-header">
+        <h2>
+            {% block comme_product_configurator_products_list_smart_bar_header_title_text %}
+                Product Detail Page
+            {% endblock %}
+        </h2>
+    </template>
+    <template slot="smart-bar-actions">
+        <sw-button-process
+            :isLoading="isLoading"
+            :processSuccess="processSuccess"
+            variant="danger"
+            @process-finish="saveFinish"
+            @click="onClickSave">
+            Save
+        </sw-button-process>
+    </template>
+
+    <template #language-switch>
+        <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+    </template>
+
+    <template slot="content">
+        <sw-card-view>
+            <sw-card>
+                {% block comme_product_configurator_products_single_select %}
+                    <sw-entity-single-select
+                        label="Choose the parent product"
+                        :options="products"
+                        :value="selectedParentProduct"
+                        entity="product"
+                        :display-variants="true"
+                        @change="setSelectedParentProduct"
+                        >
+                    </sw-entity-single-select>
+                {% endblock %}
+                {% block comme_product_configurator_products_multi_select %}
+                    <sw-entity-multi-select
+                        label="Choose the child products"
+                        :entityCollection="selectedChildProducts"
+                        entityName="product"
+                        :display-variants="true"
+                        @change="setSelectedChildProducts">
+                    </sw-entity-multi-select>
+                {% endblock %}
+                <sw-field v-model="seoUrl.seoPathInfo" label="Seo url"></sw-field>
+            </sw-card>
+        </sw-card-view>
+    </template>
+</sw-page>

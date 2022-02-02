@@ -1,0 +1,40 @@
+{% block comme_product_configurator_products_list %}
+    <sw-page class="sas-blog-author-list">
+        <template slot="smart-bar-header">
+            <h2>
+                {% block comme_product_configurator_products_list_smart_bar_header_title_text %}
+                    Product Configurator Products
+                {% endblock %}
+            </h2>
+        </template>
+        {% block comme_product_configurator_products_language_change %}
+            <template #language-switch>
+                <sw-language-switch @on-change="onChangeLanguage" />
+            </template>
+        {% endblock %}
+        {% block comme_product_configurator_products_list_smart_bar_actions %}
+            <template slot="smart-bar-actions">
+                {% block comme_product_configurator_products_list_smart_bar_actions_add %}
+                    <sw-button :routerLink="{ name: 'comme.product.configurator.commeProductConfiguratorProductsCreate' }" variant="danger">
+                        Create new product
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+{#        <template #sidebar>#}
+{#            <comme-product-configurator-products-vertical-tabs/>#}
+{#        </template>#}
+        <template #content>
+            {% block comme_product_configurator_products_list_content %}
+                <sw-entity-listing
+                    :repository="productConfiguratorProductsRepository"
+                    :items="productConfiguratorProducts"
+                    :showSelection="false"
+                    detailRoute="comme.product.configurator.categoryDetail"
+                    :columns="columns">
+                </sw-entity-listing>
+            {% endblock %}
+        </template>
+    </sw-page>
+{% endblock %}
+
