@@ -13,6 +13,7 @@ Shopware.Component.register('comme-product-configurator-products-list', {
             isLoading: false,
             total: 0,
             productConfiguratorProducts: null,
+            products: null
         }
     },
 
@@ -30,16 +31,29 @@ Shopware.Component.register('comme-product-configurator-products-list', {
         columns() {
             return [
                 {
-                    property: 'parentProductId',
+                    property: 'id',
                     label: 'Product ID',
                     allowResize: true,
                     routerLink: 'comme.product.configurator.commeProductConfiguratorProductsDetail',
                     primary: true,
+                },
+                {
+                    property: 'translated.name',
+                    label: 'Name',
+                    allowResize: true
+                },
+                {
+                    property: 'price[0].net',
+                    label: 'Name',
+                    allowResize: true
                 }
             ];
         },
         productConfiguratorProductsRepository() {
             return this.repositoryFactory.create('comme_product_configurator_products');
+        },
+        productRepository() {
+            return this.repositoryFactory.create('product');
         }
     },
 
@@ -48,7 +62,21 @@ Shopware.Component.register('comme-product-configurator-products-list', {
             .search(new Criteria(), Shopware.Context.api)
             .then((result) => {
                 this.productConfiguratorProducts = this.uniqueElements(result, 'parentProductId')
+                const productIds = []
+                this.productConfiguratorProducts.forEach(product => {
+                    productIds.push(product.parentProductId)
+                })
+                console.log(productIds)
+                const criteria = new Criteria();
+                criteria.setIds(productIds);
+                this.productRepository
+                    .search(criteria, Shopware.Context.api)
+                    .then(result => {
+                        this.products = result;
+                        console.log(this.products)
+                    });
             });
+
     },
 
     methods: {

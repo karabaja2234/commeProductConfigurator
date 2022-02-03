@@ -44,7 +44,7 @@
                         @change="setSelectedChildProducts">
                     </sw-entity-multi-select>
                 {% endblock %}
-                <sw-field v-model="seoUrl.seoPathInfo" label="Seo url"></sw-field>
+                <sw-field v-model="seoUrl.seoPathInfo" label="Seo url" :disabled="disabledInput"></sw-field>
             </sw-card>
         </sw-card-view>
     </template>

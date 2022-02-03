@@ -9,8 +9,9 @@ Shopware.Component.extend('comme-product-configurator-products-create', 'comme-p
         createdComponent() {
             this.getProduct();
             this.getProducts();
-            this.getChildProducts();
             this.selectedChildProducts = []
+            this.childProducts = []
+            this.disabledInput = true;
         },
 
         getProduct() {
@@ -27,36 +28,46 @@ Shopware.Component.extend('comme-product-configurator-products-create', 'comme-p
 
         onClickSave() {
             this.isLoading = true;
-            if(this.selectedChildProducts.length > 0) {
+            const syncService = Shopware.Service('syncService');
+            const httpClient = syncService.httpClient;
+            const authorizationHeaders = syncService.getBasicHeaders();
+
+            if(this.selectedParentProduct !== "" &&  this.selectedParentProduct !== null && this.selectedChildProducts.length > 0) {
                 this.selectedChildProducts.forEach(product => {
-
-                    this.product.childProductId = product.id;
-                    console.log(this.product)
-                    // this.productConfiguratorProductsRepository
-                    //     .save(this.product, Shopware.Context.api)
-                    //     .then(() => {
-                    //         this.isLoading = false;
-                    //         this.$router.replace({
-                    //             path: `/comme/product/configurator/index`
-                    //         });
-                    //         this.createNotificationSuccess({
-                    //             title: this.$tc('global.default.success'),
-                    //             message: this.$tc('comme-product-configurator-products-save-success.message'),
-                    //         });
-                    //     }).catch((exception) => {
-                    //     this.isLoading = false;
-                    //     if (exception.response.data && exception.response.data.errors) {
-                    //         exception.response.data.errors.forEach((error) => {
-                    //             this.createNotificationWarning({
-                    //                 title: "Error while creating a new product",
-                    //                 message: error.detail
-                    //             });
-                    //         });
-                    //     }
-                    // });
+                    this.childProducts = [...this.childProducts, product.id]
                 })
-            }
+                const childProducts = this.childProducts;
 
+                httpClient.post(
+                    `/_action/save-product/${this.selectedParentProduct}`,
+                    {
+                        headers: authorizationHeaders,
+                        childProducts: childProducts
+                    }
+                ).then((response) => {
+                    httpClient.post(
+                        `/_action/product-seo-create/${this.selectedParentProduct}`,
+                        {
+                            headers: authorizationHeaders
+                        }
+                    ).then((response) => {
+                        this.createNotificationSuccess({
+                            title: this.$tc('global.default.success'),
+                            message: this.$tc('comme-product-configurator-products-save-success.message'),
+                        });
+                        this.$router.replace({
+                            path: `/comme/product/configurator/index`
+                        });
+                    });
+                });
+            } else {
+                this.createNotificationError({
+                    title: "Error while creating a new product",
+                    message: "All fields must be entered"
+                });
+            }
+            this.isLoading = false;
+            this.processSuccess = true;
         }
     }
 });
