@@ -39,12 +39,12 @@ Shopware.Component.register('comme-product-configurator-products-list', {
                 },
                 {
                     property: 'translated.name',
-                    label: 'Name',
+                    label: 'Parent product',
                     allowResize: true
                 },
                 {
                     property: 'price[0].net',
-                    label: 'Name',
+                    label: 'Price',
                     allowResize: true
                 }
             ];
@@ -66,15 +66,16 @@ Shopware.Component.register('comme-product-configurator-products-list', {
                 this.productConfiguratorProducts.forEach(product => {
                     productIds.push(product.parentProductId)
                 })
-                console.log(productIds)
-                const criteria = new Criteria();
-                criteria.setIds(productIds);
-                this.productRepository
-                    .search(criteria, Shopware.Context.api)
-                    .then(result => {
-                        this.products = result;
-                        console.log(this.products)
-                    });
+                if(productIds.length > 0) {
+                    const criteria = new Criteria();
+                    criteria.setIds(productIds);
+                    this.productRepository
+                        .search(criteria, Shopware.Context.api)
+                        .then(result => {
+                            this.products = result;
+                        });
+                } else this.products = [];
+
             });
 
     },

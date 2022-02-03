@@ -43,7 +43,8 @@ Shopware.Component.register('comme-product-configurator-products-detail', {
             existingSeoUrl: {
                 seoPathInfo: ""
             },
-            disabledInput: false
+            disabledInput: false,
+            disabledParentProduct: true
         };
     },
 

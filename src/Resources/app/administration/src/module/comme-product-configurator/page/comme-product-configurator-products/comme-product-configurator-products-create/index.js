@@ -12,6 +12,7 @@ Shopware.Component.extend('comme-product-configurator-products-create', 'comme-p
             this.selectedChildProducts = []
             this.childProducts = []
             this.disabledInput = true;
+            this.disabledParentProduct = false
         },
 
         getProduct() {
