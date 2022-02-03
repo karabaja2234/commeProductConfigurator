@@ -167,7 +167,7 @@ class CommeProductConfiguratorController extends AbstractController
             $languageCriteria = new Criteria();
             $language = $this->languageRepository->search($languageCriteria->addFilter(new EqualsFilter('name', 'English')), $context)->first();
             $salesChannelCriteria = new Criteria();
-            $salesChannel = $this->salesChannelRepository->search($salesChannelCriteria, $context)->first();
+            $salesChannel = $this->salesChannelRepository->search($salesChannelCriteria->addFilter(new EqualsFilter('name', 'Storefront')), $context)->first();
 
             $this->seoUrlRepository->create([
                 [

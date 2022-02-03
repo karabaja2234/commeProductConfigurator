@@ -1,0 +1,10 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_content %}
+    <h1 style="text-align: center; margin-bottom: 50px">CPC page</h1>
+{#    {{ dump() }}#}
+    <h1>Parent product: {{ parentProduct.id }} - {{ parentProduct.translated.name }}</h1>
+    {% for childProduct in childProducts %}
+        <p>Child product: {{ childProduct.id }} - {{ childProduct.translated.name }}</p>
+    {% endfor %}
+{% endblock %}

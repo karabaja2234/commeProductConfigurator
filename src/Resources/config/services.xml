@@ -21,5 +21,15 @@
         <service id="commeProductConfigurator\Core\Content\CommeProductConfiguratorProducts\CommeProductConfiguratorProductsDefinition">
             <tag name="shopware.entity.definition" entity="comme_product_configurator_products"/>
         </service>
+
+        <service id="commeProductConfigurator\Storefront\Controller\CommeProductConfiguratorProductController" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="comme_product_configurator_products.repository"/>
+            <argument type="service" id="product.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
     </services>
 </container>
