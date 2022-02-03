@@ -1,7 +1,5 @@
 import template from '../comme-product-configurator-products-detail/comme-product-configurator-products-detail.html.twig';
 
-const {Component} = Shopware;
-
 Shopware.Component.extend('comme-product-configurator-products-create', 'comme-product-configurator-products-detail', {
     template,
 
@@ -34,33 +32,49 @@ Shopware.Component.extend('comme-product-configurator-products-create', 'comme-p
             const authorizationHeaders = syncService.getBasicHeaders();
 
             if(this.selectedParentProduct !== "" &&  this.selectedParentProduct !== null && this.selectedChildProducts.length > 0) {
-                this.selectedChildProducts.forEach(product => {
-                    this.childProducts = [...this.childProducts, product.id]
-                })
-                const childProducts = this.childProducts;
-
-                httpClient.post(
-                    `/_action/save-product/${this.selectedParentProduct}`,
+                httpClient.get(
+                    `/_action/validate-parent-product/${this.selectedParentProduct}`,
                     {
-                        headers: authorizationHeaders,
-                        childProducts: childProducts
+                        headers: authorizationHeaders
                     }
                 ).then((response) => {
-                    httpClient.post(
-                        `/_action/product-seo-create/${this.selectedParentProduct}`,
-                        {
-                            headers: authorizationHeaders
-                        }
-                    ).then((response) => {
-                        this.createNotificationSuccess({
-                            title: this.$tc('global.default.success'),
-                            message: this.$tc('comme-product-configurator-products-save-success.message'),
+                    this.isLoading = false;
+                    if(response.data > 0) {
+                        let msg = `Chosen parent product already exists!`;
+                        this.createNotificationError({
+                            title: "Error: Product not saved properly",
+                            message: msg
                         });
-                        this.$router.replace({
-                            path: `/comme/product/configurator/index`
+                    } else {
+                        this.selectedChildProducts.forEach(product => {
+                            this.childProducts = [...this.childProducts, product.id]
+                        })
+                        const childProducts = this.childProducts;
+
+                        httpClient.post(
+                            `/_action/save-product/${this.selectedParentProduct}`,
+                            {
+                                headers: authorizationHeaders,
+                                childProducts: childProducts
+                            }
+                        ).then((response) => {
+                            httpClient.post(
+                                `/_action/product-seo-create/${this.selectedParentProduct}`,
+                                {
+                                    headers: authorizationHeaders
+                                }
+                            ).then((response) => {
+                                this.createNotificationSuccess({
+                                    title: this.$tc('global.default.success'),
+                                    message: this.$tc('comme-product-configurator-products.comme-product-configurator-products-save-success.message'),
+                                });
+                                this.$router.replace({
+                                    path: `/comme/product/configurator/index`
+                                });
+                            });
                         });
-                    });
-                });
+                    }
+                })
             } else {
                 this.createNotificationError({
                     title: "Error while creating a new product",

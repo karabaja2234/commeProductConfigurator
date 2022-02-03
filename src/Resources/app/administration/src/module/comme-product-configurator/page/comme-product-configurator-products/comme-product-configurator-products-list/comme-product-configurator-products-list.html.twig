@@ -7,11 +7,6 @@
                 {% endblock %}
             </h2>
         </template>
-{#        {% block comme_product_configurator_products_language_change %}#}
-{#            <template #language-switch>#}
-{#                <sw-language-switch @on-change="onChangeLanguage" />#}
-{#            </template>#}
-{#        {% endblock %}#}
         {% block comme_product_configurator_products_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block comme_product_configurator_products_list_smart_bar_actions_add %}
@@ -21,9 +16,6 @@
                 {% endblock %}
             </template>
         {% endblock %}
-{#        <template #sidebar>#}
-{#            <comme-product-configurator-products-vertical-tabs/>#}
-{#        </template>#}
         <template #content>
             {% block comme_product_configurator_products_list_content %}
                 <sw-entity-listing

@@ -102,6 +102,26 @@ class CommeProductConfiguratorController extends AbstractController
     }
 
     /**
+     * @Route("/api/_action/validate-parent-product/{parentProductId}", name="api.action.cpc.validate-parent-product-action", options={"seo"="false"}, methods={"POST", "GET"})
+     */
+    public function validateParentProduct(Request $request, Context $context) : Response
+    {
+        $parentProductId = $request->attributes->get('parentProductId');
+        try {
+            $criteria = new Criteria();
+            $parentProducts = $this->productConfiguratorProductsRepository->search($criteria->addFilter(new EqualsFilter('parentProductId', $parentProductId)), $context);
+            return new Response(
+                strval($parentProducts->getTotal()),
+                Response::HTTP_OK,
+                ['Content-Type' => 'text/plain']
+            );
+        } catch(\Exception $e) {
+            error_log(print_r(array('err msg', $e->getMessage()), true) . "\n", 3, './error.log');
+        }
+        return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
      * @Route("/api/_action/save-product/{parentProductId}", name="api.action.cpc.save-product-action", options={"seo"="false"}, methods={"POST", "GET"})
      */
     public function saveOrUpdateProduct(Request $request, Context $context) : Response

@@ -1,9 +1,8 @@
 import template from './comme-product-configurator-products-detail.html.twig';
 import './comme-product-configurator-products-detail.scss'
 
-const {Component, Mixin, StateDeprecated, Context} = Shopware;
-const {Criteria, EntityCollection} = Shopware.Data;
-const utils = Shopware.Utils;
+const { Mixin, StateDeprecated } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Shopware.Component.register('comme-product-configurator-products-detail', {
     template,
@@ -80,7 +79,6 @@ Shopware.Component.register('comme-product-configurator-products-detail', {
             this.getProducts();
             this.syncService = Shopware.Service('syncService');
             this.httpClient = this.syncService.httpClient;
-
         },
 
         getProduct() {
@@ -91,7 +89,6 @@ Shopware.Component.register('comme-product-configurator-products-detail', {
             this.productConfiguratorProductsRepository
                 .search(criteria, Shopware.Context.api, new Criteria())
                 .then((entity) => {
-                    console.log(entity)
                     this.product = entity[0];
                     this.selectedParentProduct = entity[0].parentProductId;
                     this.getExistingChildProducts();
@@ -135,7 +132,6 @@ Shopware.Component.register('comme-product-configurator-products-detail', {
         },
 
         getSeoUrl() {
-            //console.log(this.selectedParentProduct)
             this.httpClient.get(
                 `/_action/get-seo-url/${this.selectedParentProduct}`,
                 {
@@ -155,7 +151,6 @@ Shopware.Component.register('comme-product-configurator-products-detail', {
         },
 
         getSeoUrlBackup() {
-            //console.log(this.selectedParentProduct)
             this.httpClient.get(
                 `/_action/get-seo-url/${this.selectedParentProduct}`,
                 {
@@ -182,46 +177,30 @@ Shopware.Component.register('comme-product-configurator-products-detail', {
             this.selectedChildProducts = value
         },
 
-        onChangeLanguage(event) {
-            this.getProduct();
-            this.languageId = event;
-        },
+        saveProductChanges() {
+            this.selectedChildProducts.forEach(product => {
+                this.childProducts = [...this.childProducts, product.id]
+            })
+            const childProducts = this.childProducts;
 
-        //Method which compares 2 arrays and returns the difference between them
-        arrayComparer(otherArray) {
-            return current => {
-                return otherArray.filter(other => {
-                    return other == current
-                }).length == 0;
-            }
-        },
-
-        //Method which compares 2 arrays of objects and returns the difference between them
-        arrayObjectComparer(otherArray) {
-            return function (current) {
-                return otherArray.filter(function (other) {
-                    return other.seoPathInfo == current.seoPathInfo
-                }).length == 0;
-            }
-        },
-
-        //Order-IT was here
-        generateRandomSeo(length) {
-            var ret = "";
-            while (ret.length < length) {
-                ret += Math.random().toString(16).substring(2);
-            }
-            return ret.substring(0, length);
-        },
-
-        searchChildProducts() {
-
+            this.httpClient.post(
+                `/_action/save-product/${this.selectedParentProduct}`,
+                {
+                    headers: this.syncService.getBasicHeaders(),
+                    childProducts: childProducts
+                }
+            ).then((response) => {
+                this.createNotificationSuccess({
+                    title: this.$tc('global.default.success'),
+                    message: this.$tc('comme-product-configurator-products.comme-product-configurator-products-update-success.message'),
+                });
+                this.$router.replace({
+                    path: `/comme/product/configurator/index`
+                });
+            });
         },
 
         onClickSave() {
-            const syncService = Shopware.Service('syncService');
-            const httpClient = syncService.httpClient;
-            const authorizationHeaders = syncService.getBasicHeaders();
             this.isLoading = true;
 
             if(this.selectedParentProduct !== "" &&  this.selectedParentProduct !== null && this.selectedChildProducts.length > 0 && this.seoUrl.seoPathInfo !== "") {
@@ -234,16 +213,15 @@ Shopware.Component.register('comme-product-configurator-products-detail', {
                         }
                     ).then((response) => {
                         this.isLoading = false;
-                        //If the response has at least one found object, it means that the slug already exists and it will throw an error
                         if(response.data > 0) {
                             let msg = `Entered seo url already exists`;
                             this.createNotificationError({
                                 title: "Error: Product not saved properly",
                                 message: msg
                             });
-                            this.getProduct();
+                            this.getSeoUrl();
+                            this.getSeoUrlBackup();
                         } else {
-                            //If the response has 0 found objects, that means that the slug does not exist and it can be saved
                             this.seoUrlRepository
                                 .get(this.seoUrl.id, Shopware.Context.api)
                                 .then(entity => {
@@ -252,34 +230,12 @@ Shopware.Component.register('comme-product-configurator-products-detail', {
                                     this.seoUrlRepository
                                         .save(this.entity, Shopware.Context.api)
                                         .then(() => {
-                                            this.getSeoUrl();
-                                            this.getSeoUrlBackup();
+                                            this.saveProductChanges();
                                         });
                                 });
                         }
                     })
-                }
-
-                this.selectedChildProducts.forEach(product => {
-                    this.childProducts = [...this.childProducts, product.id]
-                })
-                const childProducts = this.childProducts;
-
-                httpClient.post(
-                    `/_action/save-product/${this.selectedParentProduct}`,
-                    {
-                        headers: authorizationHeaders,
-                        childProducts: childProducts
-                    }
-                ).then((response) => {
-                    this.createNotificationSuccess({
-                        title: this.$tc('global.default.success'),
-                        message: this.$tc('comme-product-configurator-products-save-success.message'),
-                    });
-                    this.$router.replace({
-                        path: `/comme/product/configurator/index`
-                    });
-                });
+                } else this.saveProductChanges();
             } else {
                 this.createNotificationError({
                     title: "Error while saving product",
