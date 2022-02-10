@@ -3,8 +3,211 @@
 {% block base_content %}
     <h1 style="text-align: center; margin-bottom: 50px">CPC page</h1>
 {#    {{ dump() }}#}
-    <h1>Parent product: {{ parentProduct.id }} - {{ parentProduct.translated.name }}</h1>
-    {% for childProduct in childProducts %}
-        <p>Child product: {{ childProduct.id }} - {{ childProduct.translated.name }}</p>
-    {% endfor %}
+
+    <div class="card-body d-flex flex-column align-items-start">
+        <h1>Parent product:</h1>
+        <span class="cc-add-to-whishlist">{% sw_icon 'heart' style { 'pack': 'STLpack' } %}</span>
+        <div class="product-image-wrapper">
+            <a href="{{ seoUrl('frontend.detail.page', {'productId': parentProduct.id}) }}"
+               title="{{ parentProduct.name }}"
+               class="product-image-link is-standard" target="_blank">
+                {% if parentProduct.cover.media.url %}
+                    {% set attributes = {
+                        'class': 'product-image is-'~displayMode,
+                        'alt': (parentProduct.cover.media.translated.alt ?: name),
+                        'title': (parentProduct.cover.media.translated.title ?: name)
+                    } %}
+
+                    {% if displayMode == 'cover' or displayMode == 'contain' %}
+                        {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                    {% endif %}
+
+                    {% sw_thumbnails 'product-image-thumbnails' with {
+                        media: parentProduct.cover.media,
+                        sizes: {
+                            'xs': '501px',
+                            'sm': '315px',
+                            'md': '427px',
+                            'lg': '333px',
+                            'xl': '284px'
+                        }
+                    } %}
+                {% else %}
+                    <div class="product-image-placeholder">
+                        {% sw_icon 'placeholder' style {
+                            'size': 'fluid'
+                        } %}
+                    </div>
+                {% endif %}
+            </a>
+        </div>
+
+        <div class="product-info">
+            <a href="{{ seoUrl('frontend.detail.page', {'productId': parentProduct.id}) }}" class="product-name cc-product-name">{{ parentProduct.translated.name }}</a>
+            <p class="cc-product-description">
+                {{ parentProduct.customFields.custom_product_field_short_description }}
+            </p>
+            {% for price in parentProduct.price.elements | slice(0,1) %}
+                {% set frontendNetPrice = price.net * (1 + frontendTaxRate / 100) %}
+                <p class="cc-product-price">{{ frontendNetPrice|number_format(2, ',', '') }} {{ context.currency.symbol }}</p></a>
+
+            {% endfor %}
+            {% if parentProduct.ratingAverage %}
+                <div class="container-reviews">
+                    <div class="rating-stars">
+                        {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
+                            points: parentProduct.ratingAverage,
+                            style: 'text-primary'
+                        } %}
+                    </div>
+                    <div class="count-reviews">
+                        <div class="review-line-height">{{ parentProduct.countReviews }}</div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <div class="row cms-listing-row js-listing-wrapper">
+        <h3 class="mt-4">Child products:</h3>
+        <form
+            id="productDetailPageBuyProductForm"
+            action="{% block page_product_detail_buy_form_action %}{{ path('frontend.checkout.line-item.add') }}{% endblock %}"
+            method="post"
+            class="buy-widget"
+            data-add-to-cart="true">
+            {% block page_product_detail_buy_form_inner_csrf %}
+                {{ sw_csrf('frontend.checkout.line-item.add') }}
+            {% endblock %}
+            {% block page_product_detail_buy_container %}
+                <div class="form-row buy-widget-container">
+                    {% block page_product_detail_buy_redirect_input %}
+                        <input type="hidden"
+                               name="redirectTo"
+                               value="frontend.cart.offcanvas"/>
+                    {% endblock %}
+                    {% block page_product_detail_buy_product_buy_info %}
+                        {% for lineItem in childProducts %}
+                            {% block page_product_detail_buy_quantity %}
+                                {% set cover = lineItem.cover.media %}
+                                <div class="cms-listing-col col-sm-6 col-lg-4 col-xl-3">
+                                    <div class="card product-box box-standard scene-products-wrapp">
+                                        <div class="card-body">
+                                            <span class="cc-add-to-whishlist">{% sw_icon 'heart' style { 'pack': 'STLpack' } %}</span>
+                                            <div class="product-image-wrapper">
+                                                <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.id}) }}"
+                                                   title="{{ lineItem.name }}"
+                                                   class="product-image-link is-standard" target="_blank">
+                                                    {% if cover.url %}
+                                                        {% set attributes = {
+                                                            'class': 'product-image is-'~displayMode,
+                                                            'alt': (cover.translated.alt ?: name),
+                                                            'title': (cover.translated.title ?: name)
+                                                        } %}
+
+                                                        {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                            {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                                        {% endif %}
+
+                                                        {% sw_thumbnails 'product-image-thumbnails' with {
+                                                            media: cover,
+                                                            sizes: {
+                                                                'xs': '501px',
+                                                                'sm': '315px',
+                                                                'md': '427px',
+                                                                'lg': '333px',
+                                                                'xl': '284px'
+                                                            }
+                                                        } %}
+                                                    {% else %}
+                                                        <div class="product-image-placeholder">
+                                                            {% sw_icon 'placeholder' style {
+                                                                'size': 'fluid'
+                                                            } %}
+                                                        </div>
+                                                    {% endif %}
+                                                </a>
+                                            </div>
+
+                                            <div class="product-info">
+                                                <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.id}) }}" class="product-name cc-product-name">{{ lineItem.translated.name }}</a>
+                                                <p class="cc-product-description">
+                                                    {{ lineItem.customFields.custom_product_field_short_description }}
+                                                </p>
+                                                {% for price in lineItem.price.elements | slice(0,1) %}
+                                                    {% set frontendNetPrice = price.net * (1 + frontendTaxRate / 100) %}
+                                                    <p class="cc-product-price">{{ frontendNetPrice|number_format(2, ',', '') }} {{ context.currency.symbol }}</p></a>
+
+                                                {% endfor %}
+                                                {% if lineItem.ratingAverage %}
+                                                    <div class="container-reviews">
+                                                        <div class="rating-stars">
+                                                            {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
+                                                                points: lineItem.ratingAverage,
+                                                                style: 'text-primary'
+                                                            } %}
+                                                        </div>
+                                                        <div class="count-reviews">
+                                                            <div class="review-line-height">{{ lineItem.countReviews }}</div>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <span>{{ "scenes_page.select_qty"|trans|sw_sanitize }}</span>
+                                <select name="lineItems[{{ lineItem.id }}][quantity]"
+                                        class="custom-select product-detail-quantity-select flex-fill">
+                                    {% if lineItem.maxPurchase is null %}
+                                        {% for quantity in range(lineItem.minPurchase, 100, lineItem.purchaseSteps) %}
+                                            <option value="{{ quantity }}">
+                                                {{ quantity }}{% if lineItem.packUnit %} {{ lineItem.packUnit }}{% endif %}
+                                            </option>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for quantity in range(lineItem.minPurchase, 100, lineItem.purchaseSteps) %}
+                                            <option value="{{ quantity }}">
+                                                {{ quantity }}{% if lineItem.packUnit %} {{ lineItem.packUnit }}{% endif %}
+                                            </option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                            {% endblock %}
+                            {% block page_product_detail_buy_product_buy_info_loop %}
+                                <input type="hidden"
+                                       name="lineItems[{{ lineItem.id }}][id]"
+                                       value="{{ lineItem.id }}">
+                                <input type="hidden"
+                                       name="lineItems[{{ lineItem.id }}][type]"
+                                       value="product">
+                                <input type="hidden"
+                                       name="lineItems[{{ lineItem.id }}][referencedId]"
+                                       value="{{ lineItem.id }}">
+                                <input type="hidden"
+                                       name="lineItems[{{ lineItem.id }}][stackable]"
+                                       value="1">
+                                <input type="hidden"
+                                       name="lineItems[{{ lineItem.id }}][removable]"
+                                       value="1">
+                            {% endblock %}
+                        {% endfor %}
+                    {% endblock %}
+                    {% block page_product_detail_buy_button_container %}
+                        <div class="col-12">
+                            {% block page_product_detail_buy_button %}
+                                <button class="btn btn-primary btn-block btn-buy"
+                                        title="{{ "detail.addProduct"|trans|striptags }}"
+                                        aria-label="{{ "detail.addProduct"|trans|striptags }}">
+                                    {{ "detail.addProduct"|trans|sw_sanitize }}
+                                </button>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </form>
+    </div>
 {% endblock %}

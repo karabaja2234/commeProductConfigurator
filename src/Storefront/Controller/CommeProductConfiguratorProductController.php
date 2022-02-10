@@ -38,17 +38,24 @@ class CommeProductConfiguratorProductController extends StorefrontController
      */
     private $productRepository;
 
+    /**
+     * @var AbstractProductDetailRoute
+     */
+    private $productDetailRoute;
+
     public function __construct(
         Connection $connection,
         GenericPageLoader $pageLoader,
         EntityRepositoryInterface $productConfiguratorProductsRepository,
-        EntityRepositoryInterface $productRepository
+        EntityRepositoryInterface $productRepository,
+        AbstractProductDetailRoute $productDetailRoute
     )
     {
         $this->connection = $connection;
         $this->pageLoader = $pageLoader;
         $this->productConfiguratorProductsRepository = $productConfiguratorProductsRepository;
         $this->productRepository = $productRepository;
+        $this->productDetailRoute = $productDetailRoute;
     }
 
     /**
@@ -86,5 +93,19 @@ class CommeProductConfiguratorProductController extends StorefrontController
             error_log(print_r(array('err msg', $e->getMessage()), true) . "\n", 3, './error.log');
         }
         return new Response(null, Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * @Route("/cpc/cpc-product/add", name="frontend.cpc-product.add", methods={"POST"}, defaults={"XmlHttpRequest"=true})
+     */
+    public function addStlItems(RequestDataBag $requestDataBag, Request $request, SalesChannelContext $salesChannelContext): Response
+    {
+        $productId = $requestDataBag->get('productId');
+        $criteria = new Criteria();
+        $product = $this->productDetailRoute->load($productId, $request, $salesChannelContext,$criteria)->getProduct();
+//        $product = $this->productLoader->load($productId, $salesChannelContext);
+        $_productConfigurator = $this->productDetailRoute->load($productId, $request, $salesChannelContext,$criteria)->getConfigurator();
+
+        return $this->renderStorefront('@Storefront/storefront/page/comme-product-configurator/offcanvas-cpc.html.twig', ['product' => $product, 'productConfigurator' => $_productConfigurator]);
     }
 }
