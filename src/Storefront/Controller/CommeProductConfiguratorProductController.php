@@ -8,15 +8,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Component\Routing\Annotation\Route;
 
-class CommeProductConfiguratorProductController extends StorefrontController
+class CommeProductConfiguratorProductController extends ProductController
 {
     /**
      * @var Connection
@@ -45,7 +48,7 @@ class CommeProductConfiguratorProductController extends StorefrontController
 
     public function __construct(
         Connection $connection,
-        GenericPageLoader $pageLoader,
+        ProductPageLoader $pageLoader,
         EntityRepositoryInterface $productConfiguratorProductsRepository,
         EntityRepositoryInterface $productRepository,
         AbstractProductDetailRoute $productDetailRoute
@@ -60,12 +63,14 @@ class CommeProductConfiguratorProductController extends StorefrontController
 
     /**
      * @RouteScope(scopes={"storefront"})
-     * @Route("/cpc/{parentProductId}", name="frontend.cpc.product", methods={"GET"}, defaults={"XmlHttpRequest": true})
+     * @Route("/cpc/{productId}", name="frontend.cpc.product", methods={"GET"}, defaults={"XmlHttpRequest": true})
      */
-    public function index(SalesChannelContext $salesChannelContext, Request $request, Context $context): Response
+    public function index(SalesChannelContext $salesChannelContext, Request $request): Response
     {
-        $parentProductId = $request->attributes->get('parentProductId');
+
+        $parentProductId = $request->attributes->get('productId');
         $page = $this->pageLoader->load($request, $salesChannelContext);
+        $context = $salesChannelContext->getContext();
 
         try {
             $productsCriteria = new Criteria();
@@ -83,6 +88,9 @@ class CommeProductConfiguratorProductController extends StorefrontController
             }
             $childProductsCriteria = new Criteria($childProductsIds);
             $childProductsCriteria->addAssociation('translations');
+            $childProductsCriteria->addAssociation('properties');
+            $childProductsCriteria->addAssociation('options');
+            $childProductsCriteria->addAssociation('children');
             $childProducts = $this->productRepository->search($childProductsCriteria, $context)->getEntities();
 
             if($parentProduct) {

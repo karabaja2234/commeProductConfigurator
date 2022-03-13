@@ -24,7 +24,7 @@
 
         <service id="commeProductConfigurator\Storefront\Controller\CommeProductConfiguratorProductController" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Product\ProductPageLoader"/>
             <argument type="service" id="comme_product_configurator_products.repository"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
